@@ -3,6 +3,8 @@ import Link from "next/link";
 import OddsItem from "@/app/components/OddsItem/OddsItem";
 import { useEffect, useState } from "react";
 import { useUser } from "@auth0/nextjs-auth0/client";
+import Filter from "@/app/components/Filter/Filter";
+import { categorizeTimestampsByHour } from "@/util/dateFormat";
 
 export type OddsPageProps = {
   params: {
@@ -30,16 +32,30 @@ async function getOdds(id: string): Promise<Odds[]> {
 
 export default function OddsPage({ params: { id } }: OddsPageProps) {
   const [odds, setOdds] = useState<Odds[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedHour, setSelectedHour] = useState<string>("");
+
   const { user } = useUser();
 
   useEffect(() => {
     async function fetchOdds() {
+      setIsLoading(true);
       const data = await getOdds(id);
       setOdds(data);
+      setIsLoading(false);
     }
     fetchOdds();
   }, [id]);
 
+  const timestamps = odds.map((odd) => odd.timestamp);
+  const hourOptions = categorizeTimestampsByHour(timestamps);
+
+  const filteredOdds = selectedHour
+    ? odds.filter(
+        (odd) =>
+          new Date(Number(odd.timestamp)).getHours().toString() === selectedHour
+      )
+    : odds;
   return (
     <div>
       <main className="p-10">
@@ -53,7 +69,7 @@ export default function OddsPage({ params: { id } }: OddsPageProps) {
           <h1 className="title-large primary-text">Odds</h1>
         </div>
 
-        {!user && (
+        {!user && !isLoading && (
           <div className="surface-tint-1 p-4 rounded-md my-4 text-center">
             <p className="on-surface-text font-medium p-2">
               Log in to see the odds
@@ -67,13 +83,29 @@ export default function OddsPage({ params: { id } }: OddsPageProps) {
           </div>
         )}
 
-        {odds && !odds.length && (
+        {isLoading && (
+          <div className="surface-tint-1 p-4 rounded-md my-4 text-center">
+            <p className="outline-text font-medium">Loading...</p>
+          </div>
+        )}
+
+        {!odds.length && !isLoading && (
           <div className="surface-tint-1 p-4 rounded-md my-4 text-center">
             <p className="outline-text font-medium">No odds available</p>
           </div>
         )}
+        {user && (
+          <div>
+            <Filter
+              options={hourOptions}
+              onChange={(value) => setSelectedHour(value)}
+            />
 
-        {user && odds.map((odd, index) => <OddsItem key={index} odd={odd} />)}
+            {filteredOdds.map((odd, index) => (
+              <OddsItem key={index} odd={odd} />
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );
