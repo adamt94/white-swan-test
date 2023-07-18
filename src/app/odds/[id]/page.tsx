@@ -1,0 +1,80 @@
+"use client";
+import Link from "next/link";
+import OddsItem from "@/app/components/OddsItem/OddsItem";
+import { useEffect, useState } from "react";
+import { useUser } from "@auth0/nextjs-auth0/client";
+
+export type OddsPageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export type Odds = {
+  bookmaker_id: string;
+  odds_type: string;
+  fixture_id: string;
+  timestamp: string;
+  market_parameters: string;
+  price_names: string[];
+  prices: number[];
+};
+
+async function getOdds(id: string): Promise<Odds[]> {
+  const res = await fetch(`http://localhost:3000/api/odds?id=${id}`, {
+    cache: "no-cache",
+  });
+  const data = await res.json();
+  return data;
+}
+
+export default function OddsPage({ params: { id } }: OddsPageProps) {
+  const [odds, setOdds] = useState<Odds[]>([]);
+  const { user } = useUser();
+
+  useEffect(() => {
+    async function fetchOdds() {
+      const data = await getOdds(id);
+      setOdds(data);
+    }
+    fetchOdds();
+  }, [id]);
+
+  return (
+    <div>
+      <main className="p-10">
+        <div className="flex flex-col">
+          <Link
+            className="primary-container on-primary-container-text hover:surface-tint-2 p-2 px-4 rounded-full w-24"
+            href="/"
+          >
+            Go back
+          </Link>
+          <h1 className="title-large primary-text">Odds</h1>
+        </div>
+
+        {!user && (
+          <div className="surface-tint-1 p-4 rounded-md my-4 text-center">
+            <p className="on-surface-text font-medium p-2">
+              Log in to see the odds
+            </p>
+            <a
+              className="primary-container on-primary-container-text hover:surface-tint-2 p-2 px-4 rounded-full w-24"
+              href="/api/auth/login"
+            >
+              LOGIN
+            </a>
+          </div>
+        )}
+
+        {odds && !odds.length && (
+          <div className="surface-tint-1 p-4 rounded-md my-4 text-center">
+            <p className="outline-text font-medium">No odds available</p>
+          </div>
+        )}
+
+        {user && odds.map((odd, index) => <OddsItem key={index} odd={odd} />)}
+      </main>
+    </div>
+  );
+}
