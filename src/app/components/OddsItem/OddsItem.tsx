@@ -27,7 +27,7 @@ export default function OddsItem({ odd }: OddsItemProps) {
         </p>
       </div>
       <div className="flex-grow">
-        <div className="flex justify-around  py-2  overflow-hidden list-none hover:surface-tint-1 cursor-pointer">
+        <div className="flex justify-around  py-2  overflow-hidden list-none">
           {odd.price_names.map((name, index) => (
             <p key={index} className="outline-text title-small ">
               {name}
