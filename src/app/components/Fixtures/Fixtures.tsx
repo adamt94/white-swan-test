@@ -16,7 +16,7 @@ const Fixtures: React.FC<FixturesProps> = ({ groupedFixtures }) => {
     router.push(`/odds/${fixture.fixture_id}`);
   };
   return (
-    <Tabs tabs={[...Object.keys(groupedFixtures)]}>
+    <Tabs tabs={[...Object.keys(groupedFixtures)].map((tab) => `${tab}:00`)}>
       {Object.entries(groupedFixtures).map(([hour, competitions]) => (
         <TabPanel key={hour}>
           <ul className="flex flex-col text-center">

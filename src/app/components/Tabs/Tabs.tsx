@@ -28,7 +28,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs, children }) => {
               }`}
               onClick={() => handleTabClick(index)}
             >
-              {`${tab}:00`}
+              {`${tab}`}
             </button>
           </li>
         ))}
