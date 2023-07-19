@@ -1,7 +1,4 @@
 import FixtureItem from "@/app/components/FixtureItem/FixtureItem";
-import Tabs from "@/app/components/Tabs/Tabs";
-import TabPanel from "@/app/components/Tabs/TabPanel";
-import { useRouter } from "next/navigation";
 import { groupFixturesByHourAndCompetition } from "@/util/groupFixtures";
 import Fixtures from "@/app/components/Fixtures/Fixtures";
 
